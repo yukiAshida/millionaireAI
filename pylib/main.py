@@ -2,11 +2,11 @@ import numpy as np
 from copy import deepcopy
 
 if __name__=="__main__":
-    from utils import showPlayers, compareCards, flowGame, nextTurn
+    from utils import showPlayers, compareCards, considerOrder, flowGame, nextTurn
     from utils import number, suit, NUMBER, SUIT
     from utils import N_Player
 else:
-    from .utils import showPlayers, compareCards, flowGame, nextTurn
+    from .utils import showPlayers, compareCards, considerOrder, flowGame, nextTurn
     from .utils import number, suit, NUMBER, SUIT
     from .utils import N_Player
 
@@ -51,12 +51,12 @@ def possibleAction(state):
     action_list = np.zeros(55).astype(bool)
 
     # 初順以外はパス可能
-    action_list[54] = state.field != []
-    
+    action_list[54] = state.field != [] 
+
     # 初順 or 強カードであれば切れる
     for card in player:
 
-        if state.field == [] or compareCards(card, state.field[-1], back = state.back):
+        if state.field == [] or (compareCards(card, state.field[-1], back = state.back) and considerOrder(card, state.field, back = state.back)):
             action_list[card] = True
     
     return action_list
@@ -68,6 +68,9 @@ def selectAction(state, action_list):
     index_list = np.where(action_list)[0]
     
     # ランダムに行動を選択する
+    if len(index_list)>1 and 54 in index_list:
+        index_list = index_list[:-1]
+
     selected_action = np.random.choice(index_list)
 
     return selected_action
@@ -89,7 +92,6 @@ def nextState(original_state, action):
     if action == 54:    
         
         # 流れの場合
-        print(state.last,state)
         if state.last == nextTurn(state.turn, state.out, reverse=state.reverse):
             
             # 流れによる場の初期化
@@ -109,7 +111,6 @@ def nextState(original_state, action):
 
         # カード効果の処理
         card_number = NUMBER[number(action)]
-        print(card_number)
         
         if card_number == "8":
             flowGame(state)
@@ -123,7 +124,6 @@ def nextState(original_state, action):
 
         elif card_number == "9":
             state.reverse = bool(1-state.reverse)
-
 
         # 和了
         if len(state.players[state.turn])==0:

@@ -3,12 +3,14 @@
     //display: flex;
     //justify-content: space-around;
     position: relative;
-
+    
     #table{
         
         background-color:#AA33FF;
         
         position:relative;
+        margin-left: 10px;
+        margin-top: 10px;
         height: 800px;
         width: 800px;
     
@@ -28,17 +30,29 @@
 }
 
 .border_left{
+    border-top: solid 5px #FFFFFF;
     border-left: solid 5px #FF0000;
+    border-bottom: solid 5px #FFFFFF;
+    border-right: solid 5px #FFFFFF;
 }
 
 .border_top{
     border-top: solid 5px #FF0000;
+    border-left: solid 5px #FFFFFF;
+    border-bottom: solid 5px #FFFFFF;
+    border-right: solid 5px #FFFFFF;
 }
 
 .border_right{
+    border-top: solid 5px #FFFFFF;
+    border-left: solid 5px #FFFFFF;
+    border-bottom: solid 5px #FFFFFF;
     border-right: solid 5px #FF0000;
 }
 
 .border_bottom{
+    border-top: solid 5px #FFFFFF;
+    border-left: solid 5px #FFFFFF;
     border-bottom: solid 5px #FF0000;
+    border-right: solid 5px #FFFFFF;
 }

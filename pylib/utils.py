@@ -23,10 +23,14 @@ def number(card):
 def suit(card):
     return card//13
 
-def compareCards(challenger,field, back):
+def compareCards(challenger, field, back):
 
     # 場がジョーカーの場合
     if SUIT[suit(field)]=="JOKER" and SUIT[suit(challenger)]=="S" and NUMBER[number(challenger)]=="3":
+        return True
+    
+    # 出す側がジョーカー
+    if SUIT[suit(challenger)]=="JOKER":
         return True
 
     # 数字勝負
@@ -34,6 +38,29 @@ def compareCards(challenger,field, back):
         return True
 
     return False
+
+def considerOrder(challenger, fields, back):
+
+    # 場がジョーカー or 切り出しがジョーカーの場合は階段・スート共に問題なし
+    if not( SUIT[suit(fields[-1])]=="JOKER" or SUIT[suit(challenger)]=="JOKER"):
+        
+        # 階段縛り
+        if len(fields)>1 and ( number(fields[-1]) - number(fields[-2]) )*(-1 if back else 1) == 1:
+        
+            if (number(challenger)-number(fields[-1]))*(-1 if back else 1)!=1:
+                return False
+        
+        # スート縛り
+        if len(fields)>1 and suit(fields[-1]) == suit(fields[-2]):
+        
+            if not suit(challenger) == suit(fields[-1]):
+                return False
+
+    # スぺ3
+    if len(fields)>1 and SUIT[suit(fields[-2])]=="JOKER" and SUIT[suit(fields[-1])]=="S" and NUMBER[number(fields[-1])]=="3":
+        return False
+    
+    return True
 
 def nextTurn(current_turn, out, reverse=False, skip=False, kill=False, win=False):
     
@@ -58,8 +85,6 @@ def nextTurn(current_turn, out, reverse=False, skip=False, kill=False, win=False
         # 抜けていた場合は次の人へ
         while out[next_turn]:
             next_turn = ( next_turn + max(k,w)*r )%N_Player
-    
-    print(current_turn,next_turn)
 
     return next_turn
 

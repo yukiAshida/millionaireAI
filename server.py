@@ -5,6 +5,7 @@ from pprint import pprint
 app = Flask(__name__,template_folder='./public',static_folder='./public/js')
 
 state = initilizeGame()
+reward = None
 
 def forReact(state):
 
@@ -25,10 +26,16 @@ def index():
 def game():
 
     global state
+    global reward
 
     data = request.get_json()
     
-    if not data["start"]:
+    if reward != None:
+        print(reward)
+        state = initilizeGame()
+        reward == None
+
+    elif not data["start"]:
 
         #現在の状態において，現在ターンのプレイヤーが選択可能な行動リストを取得
         action_list = possibleAction(state)
@@ -38,13 +45,9 @@ def game():
 
         # 現在の状態と選択行動から状態を進める
         state, reward = nextState(state, action)
-
-
     
     sending_data = forReact(state)
-    if not data["start"]:
-        print(action)
-    pprint(sending_data)
+    #pprint(sending_data)
     
     return jsonify(sending_data)
     
