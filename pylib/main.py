@@ -8,6 +8,7 @@ import pandas as pd
 
 # 試合のログを取ってAIの評価・比較をするための仕様変更のために作成
 # MatchLog: 試合結果を逐次保持していき、pickleファイルを作成するためのクラス 
+# fileの保存場所は現状、相対パスで設定→修正が必要
 
 if __name__=="__main__":
     from utils import showPlayers, compareCards, considerOrder, flowGame, nextTurn
@@ -98,7 +99,7 @@ class State():
         self.back = False
         # 既にあがった人はTrue
         self.out = [False,False,False,False]
-        # 初期値を-1 -> N_playerに変更
+        # mano 初期値を-1 -> N_playerに変更
         self.rank = [N_Player]*4
         self.last = None
 
@@ -109,17 +110,21 @@ class State():
         for i,card in enumerate(shuffle):
             self.players[i%N_Player].append(int(card))
 
-    # プレイヤー視点の情報を返す。
-    def getPlayerView(self,player_id):
-        hands_numer = []
-        for hands in self.platers:
-            hands_number.append(len(hand))
-        players_hand = self.players[player_id]
-        data = {
-            "hands_number" : hands_number,
-            "player_hands" : players_hand
-        }
-        return data
+
+# プレイヤー視点の情報を返す。
+# 行動選択のための入力として機能する想定をする。
+def getPlayerView(state,match_log,player_id):
+    hands_numer = []
+    for hands in state.players:
+        hands_number.append(len(hand))
+    players_hand = state.players[player_id]
+    card_log = match_log.log
+    data = {
+        "hands_number" : hands_number,
+        "player_hands" : players_hand,
+        "card_log" : card_log
+    }
+    return data
 
 
 
@@ -293,9 +298,9 @@ def loop_log(match_log,forlder_path, file_name):
     match_log.savePickle(forlder_path, file_name)
     return match_log.rank
 
-def iterateMatch(iteration):
+def iterateMatch(iteration,ex_id):
     match_log = MatchLog()
-    date = datetime.datetime.today().strftime("%Y_%m_%d_%H_%M")
+    date = datetime.datetime.today().strftime("%Y_%m_%d_{}".format(ex_id))
     folder_path = '..\\data\\match_log\\' + date
     file_name_ = 'match'
     stats_ls = []
@@ -308,9 +313,10 @@ def iterateMatch(iteration):
     
     file_name = folder_path + '\\' +'stats.csv'
     rank_stats_df.to_csv(file_name)
+
         
 
 if __name__ == "__main__":
-
-    iterateMatch(10)
+    ex_id = 1
+    iterateMatch(10,ex_id)
     # loop()
