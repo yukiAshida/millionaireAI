@@ -47,13 +47,6 @@ if __name__ == "__main__":
     for data in read_log_iter:
         print(data["rank"])
 
-    # year = 2019
-    # month_10 = month//10
-    # month_01 = month%10
-    # day_10 = day//10
-    # day_01 = day%10
-    # file_name = data_dir + "match_log\\{}_{}{}_{}{}".format(year,month_10,month_01,day_10,day_01)
-    # print(glob.glob(file_name))
 
 
 
