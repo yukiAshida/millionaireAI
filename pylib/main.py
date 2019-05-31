@@ -1,6 +1,9 @@
 import numpy as np
 from copy import deepcopy
 
+# docs生成時
+
+
 if __name__=="__main__":
     from utils import showPlayers, compareCards, considerOrder, flowGame, nextTurn
     from utils import number, suit, NUMBER, SUIT
@@ -10,13 +13,36 @@ else:
     from .utils import number, suit, NUMBER, SUIT
     from .utils import N_Player
 
-
 class State():
-
+    """
+    Attributes
+    ----------
+    players: list(list(int))
+        プレイヤーの手札を表す
+    field: list(int)
+        場に出ているカードのリスト（巡目ごとにリセットされる）
+    garbege: list(list(int))
+        流れて捨てられたカードのリスト（流れた時点でfieldが追加される）
+    phase: int
+        場の状態支配変数（現状使われてない）
+    turn: int
+        巡目の支配変数（0 ~ N_Player-1）
+    reverse: bool
+        9リバース（Trueなら切り巡が逆転）
+    back: bool
+        11バック（Trueならカードの強さが逆転）
+    out: list(bool)
+        その巡に抜けたかどうか（Trueなら抜けてる）
+    rank: list(int)
+        その巡の順位
+    last: int or None
+        最後に切った人（パスで一巡した時に誰から次の巡の開始点になる） 
+    """
+    
     def __init__(self):
         
         self.players = [ [] for _ in range(N_Player) ]
-        self.field = []
+        self.field = [] 
         self.garbege = []
         self.phase = 1
         self.turn = 0
@@ -24,8 +50,8 @@ class State():
         self.reverse = False
         self.back = False
 
-        self.out = [False,False,False,False]
-        self.rank = [-1,-1,-1,-1]
+        self.out = [False]*N_Player
+        self.rank = [-1]*N_Player
         self.last = None
 
     def distribution(self):
@@ -38,6 +64,12 @@ class State():
 
 # 状態オブジェクトを生成し，手札を配る
 def initilizeGame():
+    """
+    Returns
+    ---------
+    state: State Object
+        初期化された状態オブジェクトを返す
+    """
 
     state = State()
     state.distribution()
@@ -46,6 +78,18 @@ def initilizeGame():
 
 # 現在の状態から切れるカードを取得
 def possibleAction(state):
+    """
+    Parameters
+    ------------
+    state: State Object
+        状態オブジェクト
+
+    Returns
+    ------------
+    action_list: ndarray(55, dtype=bool)
+        選択可能行動のリスト
+        0 ~ 53はどのカードを切るか，54はパス
+    """
 
     player = state.players[state.turn]
     action_list = np.zeros(55).astype(bool)
@@ -61,8 +105,25 @@ def possibleAction(state):
     
     return action_list
 
-# 乱数で切る（Action関数）
+
 def selectAction(state, action_list):
+    """
+    Parameters
+    ------------
+    state: State Object
+        状態オブジェクト
+    action_list: ndarray(55, dtype=bool)
+        選択可能行動リスト
+
+    Returns
+    ------------
+    selected_action: int
+        選択行動
+    
+    Notes:
+    ------------
+    乱数で適当に選ぶ
+    """
 
     # boolテーブルをカード値に変換
     index_list = np.where(action_list)[0]
@@ -75,9 +136,29 @@ def selectAction(state, action_list):
 
     return selected_action
 
-# 行動に応じて
-def nextState(original_state, action):
 
+def nextState(original_state, action):
+    """
+    Parameters
+    ------------
+    original_state: State Object
+        状態オブジェクト
+    
+    action: int
+        行動
+
+    Returns
+    ------------
+    next_state: State Object
+        次の状態
+    reward: list(int) or None
+        報酬（ゲーム終了時のみ順位リストを返す，それ以外はNone）
+    
+    Notes:
+    ------------
+    現在の状態stateに対して，actionが選択されたときに，遷移する状態を返す
+    非破壊的メソッド
+    """
 
     # 現状態のコピー
     state = deepcopy(original_state)
@@ -147,6 +228,11 @@ def nextState(original_state, action):
 
     
 def loop():
+    """
+    Notes:
+    ------------
+    基本的なゲームの進行
+    """
 
     # ゲーム状態を初期化
     state = initilizeGame()
