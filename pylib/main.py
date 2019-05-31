@@ -10,6 +10,9 @@ import pandas as pd
 # MatchLog: 試合結果を逐次保持していき、pickleファイルを作成するためのクラス 
 # fileの保存場所は現状、相対パスで設定→修正が必要
 
+from ai import MonkeyAI
+
+
 if __name__=="__main__":
     from utils import showPlayers, compareCards, considerOrder, flowGame, nextTurn
     from utils import number, suit, NUMBER, SUIT
@@ -112,13 +115,12 @@ class State():
     """
     
     def __init__(self):
-        
         self.players = [ [] for _ in range(N_Player) ]
+        self.player_AI = []
         self.field = [] 
         self.garbege = []
         self.phase = 1
         self.turn = 0
-
         self.reverse = False
         self.back = False
 
@@ -132,6 +134,11 @@ class State():
 
         for i,card in enumerate(shuffle):
             self.players[i%N_Player].append(int(card))
+
+
+    def setAI(self,AI_instance):
+        self.player_AI.append(AI_instance)
+
 
 
 # プレイヤー視点の情報を返す。
@@ -159,8 +166,11 @@ def initilizeGame():
     state: State Object
         初期化された状態オブジェクトを返す
     """
-
     state = State()
+    for _ in range(N_Player):
+        AI_instance = MonkeyAI() 
+        state.setAI(AI_instance)
+
     state.distribution()
 
     return state
@@ -195,7 +205,7 @@ def possibleAction(state):
     return action_list
 
 
-def selectAction(state, action_list):
+def selectAction(state, action_list, match_log = None):
     """
     Parameters
     ------------
@@ -216,12 +226,25 @@ def selectAction(state, action_list):
 
     # boolテーブルをカード値に変換
     index_list = np.where(action_list)[0]
-    
-    # ランダムに行動を選択する
-    if len(index_list)>1 and 54 in index_list:
-        index_list = index_list[:-1]
 
-    selected_action = np.random.choice(index_list)
+    if match_log == None:
+    # ランダムに行動を選択する
+        if len(index_list)>1 and 54 in index_list:
+            index_list = index_list[:-1]
+
+            selected_action = np.random.choice(index_list)
+
+    else:
+        player_id = state.turn
+        data = getPlayerView(state, match_log, player_id)
+
+        selected_action = state.player_AI[player_id].selectAction(data,index_list)
+    # # ランダムに行動を選択する
+    # if len(index_list)>1 and 54 in index_list:
+    #     index_list = index_list[:-1]
+
+    # selected_action = np.random.choice(index_list)
+
 
     return selected_action
 
@@ -363,7 +386,7 @@ def loop_log(match_log,forlder_path, file_name):
         action_list = possibleAction(state)
 
         # 選択可能な行動リストから行動を選択する
-        action = selectAction(state, action_list)
+        action = selectAction(state, action_list,match_log)
         match_log.writeLog(state,action)
 
         # 現在の状態と選択行動から状態を進める
