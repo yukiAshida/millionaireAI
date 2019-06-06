@@ -149,10 +149,17 @@ def getPlayerView(state,match_log,player_id):
         hands_number.append(len(hands))
     players_hand = state.players[player_id]
     card_log = match_log.log
+    garbege = self.garbege
+    reverce = self.reverse
+    back = self.back
+
     data = {
         "hands_number" : hands_number,
         "player_hands" : players_hand,
         "card_log" : card_log
+        "garbege" : garbege
+        "reverce" : reverce
+        "back" : back
     }
     return data
 
