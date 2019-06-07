@@ -11,6 +11,7 @@ import pandas as pd
 # fileの保存場所は現状、相対パスで設定→修正が必要
 
 from ai import MonkeyAI
+from ai_sample import PandaAI
 
 
 if __name__=="__main__":
@@ -149,16 +150,16 @@ def getPlayerView(state,match_log,player_id):
         hands_number.append(len(hands))
     players_hand = state.players[player_id]
     card_log = match_log.log
-    garbege = self.garbege
-    reverce = self.reverse
-    back = self.back
+    garbege = state.garbege
+    reverce = state.reverse
+    back = state.back
 
     data = {
         "hands_number" : hands_number,
         "player_hands" : players_hand,
-        "card_log" : card_log
-        "garbege" : garbege
-        "reverce" : reverce
+        "card_log" : card_log,
+        "garbege" : garbege,
+        "reverce" : reverce,
         "back" : back
     }
     return data
@@ -174,7 +175,10 @@ def initilizeGame():
         初期化された状態オブジェクトを返す
     """
     state = State()
-    for _ in range(N_Player):
+
+    AI_instance = PandaAI()
+    state.setAI(AI_instance)
+    for _ in range(N_Player-1):
         AI_instance = MonkeyAI() 
         state.setAI(AI_instance)
 
@@ -430,6 +434,6 @@ def iterateMatch(iteration,ex_id):
         
 
 if __name__ == "__main__":
-    ex_id = 1
-    iterateMatch(10,ex_id)
+    ex_id = 0
+    iterateMatch(100,ex_id)
     # loop()
